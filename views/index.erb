@@ -10,7 +10,10 @@
   
   <body>
 
+  <!--header-->
     <div id='header' class='header--red'>
+     
+    <!--meeting details-->
       <% @agenda.each do |meeting| %>
         <div class = 'details details--invisible', data-start-time = <%= meeting['start_time'] %> data-end-time = <%= meeting['end_time'] %>>
           <p class='details--bottom-margin details--bold'>
@@ -23,9 +26,27 @@
           <% end %>
         </div>
       <% end %>
-      
+    <!--clock-->
       <div id='clock' class = 'clock--size clock--right'></div>
       
+    </div>
+    
+  <!--schedule-->
+    <div id='schedule'>
+    <!--timeline-->
+      <div id="schedule__timeline">
+        <ul class="timeline__list">
+          <li class="timeline__list-item"></li>
+          <li class="timeline__list-item"></li>
+          <li class="timeline__list-item"></li>
+          <li class="timeline__list-item"></li>
+          <li class="timeline__list-item last_one"></li>
+          </ul>
+      </div>
+    <!--time-bar-->
+      <div id="schedule__time-bar"></div>
+    <!--divider bars-->
+    
     </div>
 
 <!--All the javascripts-->

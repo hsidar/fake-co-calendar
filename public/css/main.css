@@ -1,7 +1,6 @@
 /*
 All dynamically colored items will initially be set to red.
 In working state, nothing should be red so that will be a good indicator of issues.
-Color changes will be handled by javascript adding styles as opposed to adding/removing modifier classes.
 
 Trying to stick to BEM(https://css-tricks.com/bem-101/) methodologies as much as possible, hence all the __ and -- thrown around.
  */
@@ -100,4 +99,37 @@ html, body {
   float: right;
   padding: 5vh;
 }
+
+/*schedule components (time-bar, timeline, meetings, divider bars)*/
+
+#schedule {
+  position: relative;
+  height: 65%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  z-index: -1;
+}
+
+#schedule__timeline {
+  margin: 0;
+  padding: 0;
+  height: 10%;
+  width: 100%;
+  background-color: #e3e3e3;
+}
+
+.timeline__list {
+  list-style-type: none;
+}
+
+.timeline__list-item {
+  display: inline-block;
+  float: left;
+  width: 20%;
+  line-height: 300%;
+  font-weight: 300;
+}
+
+
 
