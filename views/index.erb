@@ -13,11 +13,11 @@
     <div id='header' class='header--red'>
       <% @agenda.each do |meeting| %>
         <div class = 'details details--invisible', data-start-time = <%= meeting['start_time'] %> data-end-time = <%= meeting['end_time'] %>>
-          <p>
+          <p class='details--bottom-margin details--bold'>
             <span class='details__status'>NOT HAPPENING</span>  <%= meeting['start_time'].strftime('%-I:%M')  %> - <%= meeting['end_time'].strftime('%-I:%M %p') %>
           </p>
           <h1><%= meeting['name'] %></h1>
-          <h2><%= meeting['location'] %></h2>
+          <h2 class="details--bottom-margin"><%= meeting['location'] %></h2>
           <% meeting['attendees'].each do |attendee|%>
             <img class= 'details__image' src='<%= attendee['photo'] %>' alt='<%= attendee['name'] %>' />
           <% end %>

@@ -4,7 +4,7 @@ $(document).ready(function(){
   var now = new Date();
   set_clock(now);
   
-  $('.details').addClass('details--visible');
+
   
 //  set interval to handle time sensitive elements.
 //  Update clock and time-bar every 30 seconds.
@@ -19,7 +19,7 @@ $(document).ready(function(){
 
 //Sends current time to view. It is a clock.
 function set_clock(now){
-  $('#clock').html(standard_time(now));
+  $('#clock').html(standard_time(now).replace(' ', ''));
 }
 
 
