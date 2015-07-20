@@ -216,6 +216,7 @@ html, body {
 
 .meeting__details {
   padding: 1vh;
+  font-size: 2vh;
 }
 
 .meeting__details--ellipsis-bold {
