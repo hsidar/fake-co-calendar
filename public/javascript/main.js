@@ -10,7 +10,6 @@
 
 //That percentage representation of 'now' can then be used to measure other percentage of time against to change position and properties accordingly.
 
-
 $(document).ready(function(){
   
 //  Initial setting of all time sensitive elements.
@@ -55,7 +54,7 @@ $(document).ready(function(){
 
 //Sends current time, minus the space between AM/PM and time, to view. It is a clock.
 function set_clock(now){
- $('#clock').html(standard_time(now).replace(' ', ''));
+ $('.clock').html(standard_time(now).replace(' ', ''));
 }
 
 //Sets the 4 hour array of incremental thresholds used to measure everything off of for the entire day starting with midnight.
@@ -203,7 +202,7 @@ function set_hotseat() {
   $('#header').removeClass(function(index, css){
       return (css.match (/header--\w+-?\w+/g)).join(' ');
   });
-  $('#header').addClass('header--red');
+  $('.no_more_meetings').css({'opacity' : '0', 'z-index' : '-2'});
   
   if ($('.details__status--blue').length == 1) {
     $('#header').addClass('header--blue');
@@ -224,7 +223,7 @@ function set_hotseat() {
       $('.details__status--gray:first').closest('.details').removeClass('details--invisible');
       $('.details__status--gray').html("Next Meeting");
   } else {
-    console.log('no meetings');
+      $('#no_more_meetings').css({'opacity' : '1', 'z-index' : '2'});
   }
 }
 
@@ -242,7 +241,6 @@ function percentage_time(now, then) {
 }
 
 //normalizes time from datetime object
-eg: 
 function standard_time(time){
     return time.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});
 }

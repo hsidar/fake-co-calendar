@@ -115,7 +115,7 @@ html, body {
   height: 9vh;
 }
 
-#clock {
+.clock {
   font-size: 10vw;
 }
 
@@ -198,7 +198,7 @@ html, body {
   position: absolute;
   height: 13%;
   color: white;
-  margin: 1% 1px;
+  margin: 1% 1px 1% 0;
   border-radius: 2px;
   border-left: solid 1px white;
   border-right: solid 1px white;
@@ -237,4 +237,28 @@ html, body {
   white-space: nowrap;
   overflow: hidden;
   font-weight: 300;
+}
+
+/*No more meetings screen*/
+
+#no_more_meetings {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  background-color: gray;
+  z-index: -2;
+  opacity: 0;
+}
+
+#no_more_meetings__centerpiece {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+#no_more_meetings__message {
+  color: white;
+  font-size: 6vh;
 }
