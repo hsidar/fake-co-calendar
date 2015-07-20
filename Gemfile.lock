@@ -20,6 +20,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  httparty
+  httparty (~> 0.13.5)
   rake
-  sinatra
+  sinatra (~> 1.4.6)

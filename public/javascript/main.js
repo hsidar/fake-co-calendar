@@ -23,24 +23,32 @@ $(document).ready(function(){
   var percentageNow = percentage_time(now, alphaThreshold);
   set_timebar(percentageNow);
   set_meetings(alphaThreshold);
+  set_meeting_colors(percentageNow, alphaThreshold);
+  set_details_color(percentageNow, alphaThreshold);
+  set_hotseat();
 
 //  Set interval to handle time sensitive elements.
 //  Update clock and time-bar every 30 seconds.
 //  Checks time against dynamic time elements to change colors/visibility accordingly.
   window.setInterval(function(){
     
+//  Keep time up to date.
     now = new Date();
-    set_clock(now);
-    percentageNow = percentage_time(now, alphaThreshold);
-    set_timebar(percentageNow);
     
 //  Check to see if it is time to change thresholds and update accordingly.
     if (changeover_check(alphaThreshold, now, thresholds)) {
     alphaThreshold = set_alpha_threshold(thresholds, now);
     set_block(alphaThreshold);
-    percentageNow = percentage_time(now, alphaThreshold);
     set_meetings(alphaThreshold);
     }
+    
+//  The every time things.
+    set_clock(now);
+    percentageNow = percentage_time(now, alphaThreshold);
+    set_timebar(percentageNow);
+    set_meeting_colors(percentageNow, alphaThreshold);
+    set_details_color(percentageNow, alphaThreshold);
+    set_hotseat();
     
   },30000);
 });
@@ -130,6 +138,108 @@ function set_meetings(alphaThreshold) {
     }
     lastKnown = endTime;
   });
+}
+
+//Set colors for meetings. Made this separate from set meeting because this will fire every interval and we only need to set meetings per time block. No point in doing all that ^ every minute.
+function set_meeting_colors(percentageNow, alphaThreshold) {
+  
+  $('.schedule__meeting').each(function(index) {
+//  Set times to something we can work with.
+  var startTime = Date.parse($(this).data('start-time'));
+  var endTime = Date.parse($(this).data('end-time'));
+//  Get %.
+  var percentStart = percentage_time(startTime, alphaThreshold);
+  var percentEnd = percentage_time(endTime, alphaThreshold);
+  
+//  Remove current color classes and assign new one.
+    $(this).removeClass(function(index, css){
+      return (css.match (/schedule__meeting--\w+-?\w+/g)).join(' ');
+    });
+    $(this).addClass('schedule__meeting--' + what_color(percentageNow, percentStart, percentEnd))
+    
+  });
+}
+
+// Assign meeting details color accordingly.
+function set_details_color(percentageNow, alphaThreshold) {
+  
+  $('.details').each(function(index){
+    var startTime = Date.parse($(this).data('start-time'));
+    var endTime = Date.parse($(this).data('end-time'));
+    var percentStart = percentage_time(startTime, alphaThreshold);
+    var percentEnd = percentage_time(endTime, alphaThreshold);
+    
+    var color = what_color(percentageNow, percentStart, percentEnd);
+    
+    $(this).find('.details__status').removeClass(function(index, css){
+      return (css.match (/details__status--\w+-?\w+/g)).join(' ');
+    });
+    $(this).find('.details__status').addClass('details__status--' + color);
+    
+  });
+}
+
+//Returns color based on how the start and end relate to the time % now.
+function what_color(now, start, end) {
+
+  if (start < now && end > now) {
+    return 'blue';
+  } else if (start > now && (start-now) <= 5) {
+    return 'purple';
+  } else if (start > now) {
+    return 'gray';
+  } else if (end < now) {
+    console.log('now: ' + now);
+    console.log('start: ' + start);
+    console.log('end: ' + end);
+    console.log(start < now && end > now);
+    console.log(start > now && (start-now) <= 5);
+    console.log(start > now);
+    console.log(end < now);
+    console.log('   ');
+   return 'light-gray';
+  } else {
+    return 'red'
+  }
+}
+
+//Looks at count of colors and sets visibility and header color accordingly.
+function set_hotseat() {
+  
+  // Make everything invisible and header colorless. Clear any set intervals.
+  $('.details:not([class*="details--invisible"])').addClass('details--invisible');
+  $('#header').removeClass(function(index, css){
+      return (css.match (/header--\w+-?\w+/g)).join(' ');
+  });
+  $('#header').addClass('header--red');
+  
+  if ($('.details__status--blue').length == 1) {
+    $('#header').addClass('header--blue');
+    $('.details__status--blue').closest('.details').removeClass('details--invisible');
+    $('.details__status--blue').html("Happening Now");
+  } else if ($('.details__status--blue').length > 1) {
+      $('#header').addClass('header--blue');
+      rotate("blue");
+  } else if ($('.details__status--purple').length == 1) {
+      $('#header').addClass('header--purple');
+      $('.details__status--purple').closest('.details').removeClass('details--invisible');
+      $('.details__status--purple').html("Starting Soon");
+  } else if ($('.details__status--purple').length > 1) {
+      $('#header').addClass('header--purple');
+      rotate("purple");
+  } else if ($('.details__status--gray').length > 0) {
+      $('#header').addClass('header--gray');
+      $('.details__status--gray:first').closest('.details').removeClass('details--invisible');
+      $('.details__status--gray').html("Next Meeting");
+  } else {
+    console.log('no meetings');
+  }
+}
+
+function rotate(color) {
+//  $('.details__status--' + color).rotate(10, function(){
+//    $(this).closest('.details').removeClass('details--invisible');
+//  });
 }
 
 //Converts datetime into seconds and divides by block time size (18000) and returns formatted percentage with 2 decimal places.
