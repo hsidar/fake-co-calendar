@@ -188,7 +188,7 @@ html, body {
 
 .schedule__meeting {
   position: absolute;
-  height: 10%;
+  height: 13%;
   color: white;
   margin: 1% 0;
   border-radius: 2px;
@@ -215,7 +215,7 @@ html, body {
 }
 
 .meeting__details {
-  padding: 1%;
+  padding: 1vh;
 }
 
 .meeting__details--ellipsis-bold {

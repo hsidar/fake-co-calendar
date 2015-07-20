@@ -107,7 +107,7 @@ function changeover_check(alphaThreshold, now, thresholds) {
 //Parse data-tag times into milliseconds. (Not dividing into seconds because function it passes to does that.) Get meeting time % and stage left, width, and overlap accordingly.
 function set_meetings(alphaThreshold) {
   var lastKnown; //last end-time seen by loop below.
-  var drop = 23; // drop percentage for overlap.
+  var drop = 25; // drop percentage for overlap.
   $('.schedule__meeting').each(function(index) {
 //  Set times to something we can work with.
     var startTime = Date.parse($(this).data('start-time'));
@@ -124,9 +124,9 @@ function set_meetings(alphaThreshold) {
       lastKnown = endTime;
     } else if(startTime < lastKnown) {
       $(this).css({'top' : drop + '%'});
-      drop += 13;
+      drop += 15;
     } else {
-      drop = 23;
+      drop = 25;
     }
     lastKnown = endTime;
   });
