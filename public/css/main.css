@@ -198,9 +198,8 @@ html, body {
   position: absolute;
   height: 13%;
   color: white;
-  margin: 1% 1px 1% 0;
+  margin: 1% 0;
   border-radius: 2px;
-  border-left: solid 1px white;
   border-right: solid 1px white;
   transition: opacity .5s ease-in-out;
   -moz-transition: opacity .5s ease-in-out;
