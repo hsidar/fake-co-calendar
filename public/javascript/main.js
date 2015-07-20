@@ -6,7 +6,7 @@
 
 //Datetime can be converted into seconds since epoch.(https://en.wikipedia.org/wiki/Unix_time)
 
-//Subtracting seconds from a provided time (eg: now) from seconds at threshold and then dividing that by 18000 will give percentage of time that is passed since threshold. So any element with a time percentage can be parked to the left according to that percentage and be accurately placed.
+//Subtracting seconds from a provided time (eg: now) from seconds at threshold and then dividing that by 18000 will give percentage of time that is passed since threshold. So any element with a time percentage can be styled to the left according to that percentage and be accurately placed in time.
 
 //That percentage representation of 'now' can then be used to measure other percentage of time against to change position and properties accordingly.
 
@@ -34,6 +34,12 @@ $(document).ready(function(){
     var percentageNow = percentage_time(now, alphaThreshold);
     set_timebar(percentageNow);
     
+//  Check to see if it is time to change thresholds and update accordingly.
+    if (changeover_check(alphaThreshold, now, thresholds)) {
+    alphaThreshold = set_alpha_threshold(thresholds, now);
+    set_block(alphaThreshold);
+    }
+    
   },30000);
 });
 
@@ -41,7 +47,6 @@ $(document).ready(function(){
 function set_clock(now){
  $('#clock').html(standard_time(now).replace(' ', ''));
 }
-
 
 //Sets the 4 hour array of incremental thresholds used to measure everything off of for the entire day starting with midnight.
 function set_thresholds(thresholds) {
@@ -73,11 +78,24 @@ function set_block(alphaThreshold) {
   });
 }
 
-
 //Sets timebar accordingly using the formula stated at top.
 function set_timebar(percentageNow) {
   var percentage = percentageNow + "%"
   $('#schedule__time-bar').css({'left' : percentage});
+}
+
+//If 'now' equals any of the thresholds, and is not the current threshold, then prompt for changeover.
+function changeover_check(alphaThreshold, now, thresholds) {
+  var standard_now = standard_time(now);
+  for(var x in thresholds){
+    if (standard_now == standard_time(thresholds[x])){
+      if(standard_now == standard_time(alphaThreshold)){
+          return false;
+      }
+      return true;
+    }
+  }
+  return false;
 }
 
 //Converts datetime into seconds and divides by block time size (18000) and returns formatted percentage with 2 decimal places.
