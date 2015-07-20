@@ -37,7 +37,7 @@ html, body {
 }
 
 .header--purple {
-  
+  background-color: #bc2dbc;
 }
 
 .header--gray {
@@ -45,7 +45,7 @@ html, body {
 }
 
 .header--light-gray {
-  background-color: lightgray;
+  background-color: #e3e3e3;
 }
 
 .details {
@@ -71,10 +71,29 @@ html, body {
   padding: 5px;
   background-color: white;
   font-weight: bold;
-  color: red;
   padding: 1%;
   margin-right: 2%;
   
+}
+
+.details__status--red {
+  background-color: red;
+}
+
+.details__status--blue {
+  background-color: #3399FF;
+}
+
+.details__status--purple {
+  background-color: #bc2dbc;
+}
+
+.details__status--gray {
+  background-color: gray;
+}
+
+.details__status--light-gray {
+  background-color: #e3e3e3;
 }
 
 .details--bold {
@@ -134,7 +153,7 @@ html, body {
 #schedule__time-bar {
   position: absolute;
   height: 100%;
-  width: 1px;
+  width: 2px;
   background: red;
   z-index: -1;
 }
@@ -145,7 +164,7 @@ html, body {
   width: 10%;
 }
 
-.schedule__measure-bar:nth-child(odd) {
+.schedule__divider-bar:nth-child(odd) {
   box-sizing:border-box;
   float: left;
   height: 100%;
@@ -156,7 +175,7 @@ html, body {
   z-index: -2;
 }
 
-.schedule__measure-bar:nth-child(even) {
+.schedule__divider-bar:nth-child(even) {
   box-sizing:border-box;
   float: left;
   height: 100%;
@@ -165,4 +184,43 @@ html, body {
   border-width: 2px;
   border-color: #e3e3e3;
   z-index: -2;
+}
+
+.schedule__meeting {
+  position: absolute;
+  height: 10%;
+  color: white;
+  margin: 1% 0;
+  border-radius: 2px;
+}
+
+.schedule__meeting--red {
+  background-color: red;
+}
+
+.schedule__meeting--blue {
+  background-color: #3399FF;
+}
+
+.schedule__meeting--purple {
+  background-color: #bc2dbc;
+}
+
+.schedule__meeting--gray {
+  background-color: gray;
+}
+
+.schedule__meeting--light-gray {
+  background-color: #e3e3e3;
+}
+
+.meeting__details {
+  padding: 1%;
+}
+
+.meeting__details--ellipsis-bold {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  font-weight: 300;
 }

@@ -21,8 +21,8 @@ $(document).ready(function(){
   var alphaThreshold = set_alpha_threshold(thresholds, now);
   set_block(alphaThreshold);
   var percentageNow = percentage_time(now, alphaThreshold);
-  console.log(percentageNow);
   set_timebar(percentageNow);
+  set_meetings(alphaThreshold);
 
 //  Set interval to handle time sensitive elements.
 //  Update clock and time-bar every 30 seconds.
@@ -31,13 +31,15 @@ $(document).ready(function(){
     
     now = new Date();
     set_clock(now);
-    var percentageNow = percentage_time(now, alphaThreshold);
+    percentageNow = percentage_time(now, alphaThreshold);
     set_timebar(percentageNow);
     
 //  Check to see if it is time to change thresholds and update accordingly.
     if (changeover_check(alphaThreshold, now, thresholds)) {
     alphaThreshold = set_alpha_threshold(thresholds, now);
     set_block(alphaThreshold);
+    percentageNow = percentage_time(now, alphaThreshold);
+    set_meetings(alphaThreshold);
     }
     
   },30000);
@@ -96,6 +98,38 @@ function changeover_check(alphaThreshold, now, thresholds) {
     }
   }
   return false;
+}
+
+//Dear future me: I hope you understand my explanation of the meeting length = width% thing.
+
+//Width: End - Start = milliseconds meeting will take. Divide by closest millesecond that will give a clean number. Multiply that by calculated increment %. Eg: 15 min is 900,000 milliseconds and 15 min = 5% of the view width. So I just kept halving those numbers until I got to below 1 second(56250) and its corresponding % (.3125).
+
+//Parse data-tag times into milliseconds. (Not dividing into seconds because function it passes to does that.) Get meeting time % and stage left, width, and overlap accordingly.
+function set_meetings(alphaThreshold) {
+  var lastKnown; //last end-time seen by loop below.
+  var drop = 23; // drop percentage for overlap.
+  $('.schedule__meeting').each(function(index) {
+//  Set times to something we can work with.
+    var startTime = Date.parse($(this).data('start-time'));
+    var endTime = Date.parse($(this).data('end-time'));
+//  Get %.
+    var percentStart = percentage_time(startTime, alphaThreshold);
+    var percentEnd = percentage_time(endTime, alphaThreshold);
+//  Get width. 
+    var width = ((endTime - startTime) /56250) * .3125;
+//  Set left and width.
+    $(this).css({'width' : width + '%', 'left' : percentStart + '%'});
+//  Check for overlap. If last known end time of last meeting is greater than start time, they overlap. Drop it like it has extreme temperature levels.
+    if (typeof lastKnown === "undefined") {
+      lastKnown = endTime;
+    } else if(startTime < lastKnown) {
+      $(this).css({'top' : drop + '%'});
+      drop += 13;
+    } else {
+      drop = 23;
+    }
+    lastKnown = endTime;
+  });
 }
 
 //Converts datetime into seconds and divides by block time size (18000) and returns formatted percentage with 2 decimal places.

@@ -17,7 +17,7 @@
       <% @agenda.each do |meeting| %>
         <div class = 'details details--invisible', data-start-time = <%= meeting['start_time'] %> data-end-time = <%= meeting['end_time'] %>>
           <p class='details--bottom-margin details--bold'>
-            <span class='details__status'>NOT HAPPENING</span>  <%= meeting['start_time'].strftime('%-I:%M')  %> - <%= meeting['end_time'].strftime('%-I:%M %p') %>
+            <span class='details__status details__status--red'>NOT HAPPENING</span>  <%= meeting['start_time'].strftime('%-I:%M')  %> - <%= meeting['end_time'].strftime('%-I:%M %p') %>
           </p>
           <h1><%= meeting['name'] %></h1>
           <h2 class="details--bottom-margin"><%= meeting['location'] %></h2>
@@ -48,7 +48,17 @@
     <!--divider bars-->
       <div class="schedule__buffer-bar"></div>
       <% 9.times do %>
-        <div class="schedule__measure-bar"></div>
+        <div class="schedule__divider-bar"></div>
+      <% end %>
+
+    <!--Meetings-->
+      <% @agenda.each do |meeting| %>
+        <div class="schedule__meeting schedule__meeting--red" data-start-time = <%= meeting['start_time'] %> data-end-time = <%= meeting['end_time'] %>>
+          <div class="meeting__details">
+            <p class="meeting__details--ellipsis-bold"><%= meeting['name'] %></p>
+            <p><%= meeting['start_time'].strftime("%-I:%M") %></p>
+          </div>
+        </div>
       <% end %>
       
     </div>
