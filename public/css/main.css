@@ -215,8 +215,8 @@ html, body {
 }
 
 .meeting__details {
-  padding: 1vh;
-  font-size: 2vh;
+  padding: 3px;
+  font-size: 3vh;
 }
 
 .meeting__details--ellipsis-bold {
