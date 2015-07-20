@@ -180,24 +180,16 @@ function set_details_color(percentageNow, alphaThreshold) {
 }
 
 //Returns color based on how the start and end relate to the time % now.
-function what_color(now, start, end) {
+function what_color(nowPercentage, startPercentage, endPercentage) {
 
-  if (start < now && end > now) {
+  if (startPercentage < nowPercentage && endPercentage > nowPercentage) {
     return 'blue';
-  } else if (start > now && (start-now) <= 5) {
+  } else if (startPercentage > nowPercentage && (startPercentage- nowPercentage) <= 5) {
     return 'purple';
-  } else if (start > now) {
+  } else if (startPercentage > nowPercentage) {
     return 'gray';
-  } else if (end < now) {
-    console.log('now: ' + now);
-    console.log('start: ' + start);
-    console.log('end: ' + end);
-    console.log(start < now && end > now);
-    console.log(start > now && (start-now) <= 5);
-    console.log(start > now);
-    console.log(end < now);
-    console.log('   ');
-   return 'light-gray';
+  } else if (endPercentage < nowPercentage) {
+    return 'light-gray';
   } else {
     return 'red'
   }
@@ -246,7 +238,7 @@ function rotate(color) {
 function percentage_time(now, then) {
   now = now /1000;
   then = then /1000;
-  return (((now - then) / 18000) * 100).toFixed(2);
+  return +(((now - then) / 18000) * 100).toFixed(2);
 }
 
 //normalizes time from datetime object
