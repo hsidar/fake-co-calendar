@@ -12,6 +12,9 @@
 
 $(document).ready(function(){
   
+  var roadblock = false;
+  var cycle = 0;
+  
 //  Initial setting of all time sensitive elements.
   var now = new Date();
   set_clock(now);
@@ -50,7 +53,6 @@ $(document).ready(function(){
     set_hotseat();
     
   },30000);
-});
 
 //Sends current time, minus the space between AM/PM and time, to view. It is a clock.
 function set_clock(now){
@@ -205,19 +207,27 @@ function set_hotseat() {
   $('.no_more_meetings').css({'opacity' : '0', 'z-index' : '-2'});
   
   if ($('.details__status--blue').length == 1) {
+    stop_details_rotation();
     $('#header').addClass('header--blue');
     $('.details__status--blue').closest('.details').removeClass('details--invisible');
     $('.details__status--blue').html("Happening Now");
   } else if ($('.details__status--blue').length > 1) {
       $('#header').addClass('header--blue');
-      rotate("blue");
+      $('.details__status--blue').html("Happening Now");
+      if(!roadblock){
+        rotate("blue");
+      }
   } else if ($('.details__status--purple').length == 1) {
+      stop_details_rotation();
       $('#header').addClass('header--purple');
       $('.details__status--purple').closest('.details').removeClass('details--invisible');
       $('.details__status--purple').html("Starting Soon");
   } else if ($('.details__status--purple').length > 1) {
       $('#header').addClass('header--purple');
+      $('.details__status--purple').html("Happening Now");
+      if(!roadblock){
       rotate("purple");
+      }
   } else if ($('.details__status--gray').length > 0) {
       $('#header').addClass('header--gray');
       $('.details__status--gray:first').closest('.details').removeClass('details--invisible');
@@ -226,11 +236,21 @@ function set_hotseat() {
       $('#no_more_meetings').css({'opacity' : '1', 'z-index' : '2'});
   }
 }
+  
+function stop_details_rotation(){
+  roadblock = false;
+  clearInterval(cycle);
+  $('.details').css('display', '');
+}
 
 function rotate(color) {
-//  $('.details__status--' + color).rotate(10, function(){
-//    $(this).closest('.details').removeClass('details--invisible');
-//  });
+    roadblock = true;
+    $('.details__status--blue:last').closest('.details').fadeIn(500).delay(7000).fadeOut(500);
+    cycle = setInterval(function(){
+      $('.details__status--blue:first').closest('.details').fadeIn(500).delay(7000).fadeOut(500,function (){
+        $(this).appendTo($(this).parent());
+      });
+    }, 8500);
 }
 
 //Converts datetime into seconds and divides by block time size (18000) and returns formatted percentage with 2 decimal places.
@@ -244,3 +264,5 @@ function percentage_time(now, then) {
 function standard_time(time){
     return time.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});
 }
+  
+});

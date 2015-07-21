@@ -60,14 +60,11 @@ html, body {
   transition: opacity .5s ease-in-out;
   -moz-transition: opacity .5s ease-in-out;
   -webkit-transition: opacity .5s ease-in-out;
+   white-space: nowrap;
 }
 
 .details--invisible {
-  opacity: 0;
-}
-
-.details--visible {
-  opacity: 1;
+  display: none;
 }
 
 .details__status {
@@ -77,7 +74,6 @@ html, body {
   font-weight: bold;
   padding: 1%;
   margin-right: 2%;
-  
 }
 
 .details__status--red {
