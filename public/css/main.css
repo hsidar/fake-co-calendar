@@ -1,0 +1,215 @@
+/*
+All dynamically colored items will initially be set to red.
+In working state, nothing should be red so that will be a good indicator of issues.
+
+Trying to stick to BEM(https://css-tricks.com/bem-101/) methodologies as much as possible, hence all the __ and -- thrown around.
+ */
+* {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 100; }
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden; }
+
+/* clock and meeting details header */
+#header {
+  position: relative;
+  width: 100%;
+  height: 35%;
+  color: white;
+  box-shadow: 0px 3px 5px 5px rgba(0, 0, 0, 0.2);
+  transition: opacity .5s ease-in-out;
+  -moz-transition: opacity .5s ease-in-out;
+  -webkit-transition: opacity .5s ease-in-out; }
+
+.header--danger-event-color {
+  background-color: red; }
+
+.header--ongoing-event-color {
+  background-color: #3399FF; }
+
+.header--upcoming-event-color {
+  background-color: #bc2dbc; }
+
+.header--next-event-color {
+  background-color: gray; }
+
+.header--past-event-color {
+  /*  no reason for this to ever happen, so make it show danger color.*/
+  background-color: red; }
+
+.details {
+  position: absolute;
+  font-size: 3vh;
+  float: left;
+  padding: 3vh 0 0 3vh;
+  transition: opacity .5s ease-in-out;
+  -moz-transition: opacity .5s ease-in-out;
+  -webkit-transition: opacity .5s ease-in-out;
+  white-space: nowrap; }
+
+.details--invisible {
+  display: none; }
+
+.details__status {
+  font-weight: 700;
+  padding: 5px;
+  background-color: white;
+  font-weight: bold;
+  padding: 1%;
+  margin-right: 2%; }
+
+.details__status--danger-event-color {
+  color: red; }
+
+.details__status--ongoing-event-color {
+  color: #3399FF; }
+
+.details__status--upcoming-event-color {
+  color: #bc2dbc; }
+
+.details__status--next-event-color {
+  color: gray; }
+
+.details__status--past-event-color {
+  /*  no reason for this to ever happen, so make it show danger color.*/
+  color: red; }
+
+.details--bold {
+  font-weight: bold; }
+
+.details--bottom-margin {
+  margin-bottom: 2vh; }
+
+.details__image {
+  border-radius: 100%;
+  width: 9vh;
+  height: 9vh; }
+
+.clock {
+  font-size: 10vw; }
+
+.clock--right {
+  float: right;
+  padding: 5vh; }
+
+/*schedule components (time-bar, timeline, meetings, divider bars)*/
+#schedule {
+  position: relative;
+  height: 65%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  z-index: -1; }
+
+#schedule__timeline {
+  margin: 0;
+  padding: 0;
+  height: 10%;
+  width: 100%;
+  background-color: #e3e3e3; }
+
+.timeline__list {
+  list-style-type: none; }
+
+.timeline__list-item {
+  display: inline-block;
+  float: left;
+  width: 20%;
+  line-height: 200%;
+  font-weight: 300;
+  transition: opacity .5s ease-in-out;
+  -moz-transition: opacity .5s ease-in-out;
+  -webkit-transition: opacity .5s ease-in-out; }
+
+#schedule__time-bar {
+  position: absolute;
+  height: 100%;
+  width: 2px;
+  background: red;
+  z-index: -1; }
+
+.schedule__buffer-bar {
+  float: left;
+  height: 100%;
+  width: 10%; }
+
+.schedule__divider-bar:nth-child(odd) {
+  box-sizing: border-box;
+  float: left;
+  height: 100%;
+  width: 10%;
+  border-left-style: solid;
+  border-width: 2px;
+  border-color: #e3e3e3;
+  z-index: -2; }
+
+.schedule__divider-bar:nth-child(even) {
+  box-sizing: border-box;
+  float: left;
+  height: 100%;
+  width: 10%;
+  border-left-style: dashed;
+  border-width: 2px;
+  border-color: #e3e3e3;
+  z-index: -2; }
+
+.schedule__meeting {
+  position: absolute;
+  height: 13%;
+  color: white;
+  margin: 1% 0;
+  border-radius: 2px;
+  border-right: solid 1px white;
+  transition: opacity .5s ease-in-out;
+  -moz-transition: opacity .5s ease-in-out;
+  -webkit-transition: opacity .5s ease-in-out; }
+
+.schedule__meeting--danger-event-color {
+  background-color: red; }
+
+.schedule__meeting--ongoing-event {
+  background-color: #3399FF; }
+
+.schedule__meeting--upcoming-event-color {
+  background-color: #bc2dbc; }
+
+.schedule__meeting--next-event-color {
+  background-color: gray; }
+
+.schedule__meeting--past-event-color {
+  background-color: #e3e3e3; }
+
+.meeting__details {
+  padding: 3px;
+  font-size: 3vh; }
+
+.meeting__details--ellipsis-bold {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  font-weight: 300; }
+
+/*No more meetings screen*/
+#no_more_meetings {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  background-color: gray;
+  z-index: -2;
+  opacity: 0; }
+
+#no_more_meetings__centerpiece {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center; }
+
+#no_more_meetings__message {
+  color: white;
+  font-size: 6vh; }

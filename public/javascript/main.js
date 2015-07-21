@@ -154,7 +154,7 @@ function set_meeting_colors(percentageNow, alphaThreshold) {
   
 //  Remove current color classes and assign new one.
     $(this).removeClass(function(index, css){
-      return (css.match (/schedule__meeting--\w+-\w+-\w+/g)).join(' ');
+      return (css.match (/schedule__meeting--[\w-]+/g)).join(' ');
     });
     $(this).addClass('schedule__meeting--' + what_color(percentageNow, percentStart, percentEnd))
     
@@ -173,7 +173,7 @@ function set_details_color(percentageNow, alphaThreshold) {
     var color = what_color(percentageNow, percentStart, percentEnd);
     
     $(this).find('.details__status').removeClass(function(index, css){
-      return (css.match (/details__status--\w+-\w+-\w+/g)).join(' ');
+      return (css.match (/details__status--[\w-]+/g)).join(' ');
     });
     $(this).find('.details__status').addClass('details__status--' + color);
     
@@ -202,7 +202,7 @@ function set_hotseat() {
   // Make everything invisible and header colorless. Clear any set intervals.
   $('.details:not([class*="details--invisible"])').addClass('details--invisible');
   $('#header').removeClass(function(index, css){
-      return (css.match (/header--\w+-?\w+-?\w+/g)).join(' ');
+      return (css.match (/header--[\w-]+/g)).join(' ');
   });
   $('.no_more_meetings').css({'opacity' : '0', 'z-index' : '-2'});
   
