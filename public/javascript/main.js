@@ -154,7 +154,7 @@ function set_meeting_colors(percentageNow, alphaThreshold) {
   
 //  Remove current color classes and assign new one.
     $(this).removeClass(function(index, css){
-      return (css.match (/schedule__meeting--\w+-?\w+/g)).join(' ');
+      return (css.match (/schedule__meeting--.+/g)).join(' ');
     });
     $(this).addClass('schedule__meeting--' + what_color(percentageNow, percentStart, percentEnd))
     
@@ -173,7 +173,7 @@ function set_details_color(percentageNow, alphaThreshold) {
     var color = what_color(percentageNow, percentStart, percentEnd);
     
     $(this).find('.details__status').removeClass(function(index, css){
-      return (css.match (/details__status--\w+-?\w+/g)).join(' ');
+      return (css.match (/details__status--.+/g)).join(' ');
     });
     $(this).find('.details__status').addClass('details__status--' + color);
     
