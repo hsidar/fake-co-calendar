@@ -1,4 +1,4 @@
 # config.ru
 
-require './calendar'
+require './calendar' 
 run Sinatra::Application

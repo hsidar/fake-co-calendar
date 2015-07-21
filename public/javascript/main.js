@@ -184,15 +184,15 @@ function set_details_color(percentageNow, alphaThreshold) {
 function what_color(nowPercentage, startPercentage, endPercentage) {
 
   if (startPercentage < nowPercentage && endPercentage > nowPercentage) {
-    return 'blue';
+    return 'ongoing-event-color';
   } else if (startPercentage > nowPercentage && (startPercentage- nowPercentage) <= 5) {
-    return 'purple';
+    return 'upcoming-event-color';
   } else if (startPercentage > nowPercentage) {
-    return 'gray';
+    return 'next-event-color';
   } else if (endPercentage < nowPercentage) {
-    return 'light-gray';
+    return 'past-event-color';
   } else {
-    return 'red'
+    return 'danger-event-color'
   }
 }
 
@@ -206,32 +206,32 @@ function set_hotseat() {
   });
   $('.no_more_meetings').css({'opacity' : '0', 'z-index' : '-2'});
   
-  if ($('.details__status--blue').length == 1) {
+  if ($('.details__status--ongoing-event-color').length == 1) {
     stop_details_rotation();
-    $('#header').addClass('header--blue');
-    $('.details__status--blue').closest('.details').removeClass('details--invisible');
-    $('.details__status--blue').html("Happening Now");
-  } else if ($('.details__status--blue').length > 1) {
-      $('#header').addClass('header--blue');
-      $('.details__status--blue').html("Happening Now");
+    $('#header').addClass('header--ongoing-event-color');
+    $('.details__status--ongoing-event-color').closest('.details').removeClass('details--invisible');
+    $('.details__status--ongoing-event-color').html("Happening Now");
+  } else if ($('.details__status--ongoing-event-color').length > 1) {
+      $('#header').addClass('header--ongoing-event-color');
+      $('.details__status--ongoing-event-color').html("Happening Now");
       if(!roadblock){
-        rotate("blue");
+        rotate("ongoing-event-color");
       }
-  } else if ($('.details__status--purple').length == 1) {
+  } else if ($('.details__status--upcoming-event-color').length == 1) {
       stop_details_rotation();
-      $('#header').addClass('header--purple');
-      $('.details__status--purple').closest('.details').removeClass('details--invisible');
-      $('.details__status--purple').html("Starting Soon");
-  } else if ($('.details__status--purple').length > 1) {
-      $('#header').addClass('header--purple');
-      $('.details__status--purple').html("Happening Now");
+      $('#header').addClass('header--upcoming-event-color');
+      $('.details__status--upcoming-event-color').closest('.details').removeClass('details--invisible');
+      $('.details__status--upcoming-event-color').html("Starting Soon");
+  } else if ($('.details__status--upcoming-event-color').length > 1) {
+      $('#header').addClass('header--upcoming-event-color');
+      $('.details__status--upcoming-event-color').html("Happening Now");
       if(!roadblock){
-      rotate("purple");
+      rotate("upcoming-event-color");
       }
-  } else if ($('.details__status--gray').length > 0) {
-      $('#header').addClass('header--gray');
-      $('.details__status--gray:first').closest('.details').removeClass('details--invisible');
-      $('.details__status--gray').html("Next Meeting");
+  } else if ($('.details__status--next-event-color').length > 0) {
+      $('#header').addClass('header--next-event-color');
+      $('.details__status--next-event-color:first').closest('.details').removeClass('details--invisible');
+      $('.details__status--next-event-color').html("Next Meeting");
   } else {
       $('#no_more_meetings').css({'opacity' : '1', 'z-index' : '2'});
   }
@@ -245,9 +245,10 @@ function stop_details_rotation(){
 
 function rotate(color) {
     roadblock = true;
-    $('.details__status--blue:last').closest('.details').fadeIn(500).delay(7000).fadeOut(500);
+    var selector = '.details__status--' + color + ':last';
+    $(selector).closest('.details').fadeIn(500).delay(7000).fadeOut(500);
     cycle = setInterval(function(){
-      $('.details__status--blue:first').closest('.details').fadeIn(500).delay(7000).fadeOut(500,function (){
+      $('.details__status--ongoing_event:first').closest('.details').fadeIn(500).delay(7000).fadeOut(500,function (){
         $(this).appendTo($(this).parent());
       });
     }, 8500);
