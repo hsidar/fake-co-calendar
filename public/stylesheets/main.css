@@ -172,7 +172,7 @@ html, body {
 .schedule__meeting--danger-event-color {
   background-color: red; }
 
-.schedule__meeting--ongoing-event {
+.schedule__meeting--ongoing-event-color {
   background-color: #3399FF; }
 
 .schedule__meeting--upcoming-event-color {

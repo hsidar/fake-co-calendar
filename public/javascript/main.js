@@ -12,258 +12,259 @@
 
 $(document).ready(function(){
   
-  var roadblock = false;
-  var cycle = 0;
+  var beginNewDetailsRotation = true;
+  var detailsRotationIntervalIndex = 0;
+  var now = new Date();
+  var thresholds = [];
+  var alphaThreshold;
+  var percentageNow;
   
 //  Initial setting of all time sensitive elements.
-  var now = new Date();
-  set_clock(now);
-  var thresholds = [];
-  set_thresholds(thresholds);
-  var alphaThreshold = set_alpha_threshold(thresholds, now);
-  set_block(alphaThreshold);
-  var percentageNow = percentage_time(now, alphaThreshold);
-  set_timebar(percentageNow);
-  set_meetings(alphaThreshold);
-  set_meeting_colors(percentageNow, alphaThreshold);
-  set_details_color(percentageNow, alphaThreshold);
-  set_hotseat();
+  set_thresholds_for_all_time_blocks();
+  update_things_that_update_with_every_timeblock();
+  update_things_that_update_every_minute();
 
 //  Set interval to handle time sensitive elements.
-//  Update clock and time-bar every 30 seconds.
 //  Checks time against dynamic time elements to change colors/visibility accordingly.
-  window.setInterval(function(){
+  window.setInterval(function(){ 
     
 //  Keep time up to date.
-    now = new Date();
-    
-//  Check to see if it is time to change thresholds and update accordingly.
-    if (changeover_check(alphaThreshold, now, thresholds)) {
-    alphaThreshold = set_alpha_threshold(thresholds, now);
-    set_block(alphaThreshold);
-    set_meetings(alphaThreshold);
+    now = new Date();    
+
+    if (timeblock_changeover_needs_to_happen()) {
+      update_things_that_update_with_every_timeblock();
     }
     
-//  The every time things.
-    set_clock(now);
-    percentageNow = percentage_time(now, alphaThreshold);
-    set_timebar(percentageNow);
+    update_things_that_update_every_minute();
+    
+  },30000); //< timer!
+
+  //Sends current time, minus the space between AM/PM and time, to view. It is a clock.
+  function set_clock(){
+   $('.clock').html(standard_time(now).replace(' ', ''));
+  }
+
+  //Create temporary time object set for midnight and loop through, adding 4 hours to it each loop and pushing to thresholds array.
+  function set_thresholds_for_all_time_blocks() {
+    for(var i=0; thresholds.length < 7; i+=4){
+      var timeObjectPlaceholder = new Date();
+      timeObjectPlaceholder.setHours(i,0,0);
+      thresholds.push(timeObjectPlaceholder);
+    }
+  }
+
+  //Sets the current threshold to use as a base for the time shenanigans in current time block.
+  function set_alpha_threshold_for_current_block() {
+    var lastThresholdLessThanCurrentTime = "";
+    for (var i = 0; i < thresholds.length; i++) {
+      if(now > thresholds[i]) {
+          lastThresholdLessThanCurrentTime = thresholds[i];
+      }
+    }
+    alphaThreshold = lastThresholdLessThanCurrentTime;
+  }
+
+  //Loops over timeline ul and sets times.
+  //Makes a new object from alphaThreshold so that when time is updated during enumeration it doesnt update the actual alphaThreshold, cause that was no fun. Learned about javascript passing objects byReference instead of byValue the hard way.
+  function set_current_time_block() {
+    var blockThreshold = new Date(alphaThreshold);
+    $('.timeline__list-item').each(function(index){
+      $(this).html(blockThreshold.toLocaleTimeString(navigator.language, {hour: '2-digit'}));
+      blockThreshold.setHours(blockThreshold.getHours()+1);
+    });
+  }
+
+  //Sets timebar accordingly using the formula stated at top.
+  function set_timebar() {
+    var percentage = percentageNow + "%"
+    $('#schedule__time-bar').css({'left' : percentage});
+  }
+
+  //If 'now' equals any of the thresholds, and is not the current threshold, then prompt for changeover.
+  function timeblock_changeover_needs_to_happen() {
+    var standard_now = standard_time(now);
+    for(var x in thresholds){
+      if (standard_now == standard_time(thresholds[x])){
+        if(standard_now == standard_time(alphaThreshold)){
+            return false;
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
+  //Dear future me: I hope you understand my explanation of the meeting length = width% thing.
+
+  //Width: End - Start = milliseconds meeting will take. Divide by closest millesecond that will give a clean number. Multiply that by calculated increment %. Eg: 15 min is 900,000 milliseconds and 15 min = 5% of the view width. So I just kept halving those numbers until I got to below 1 second(56250) and its corresponding % (.3125).
+
+  //Parse data-tag times into milliseconds. (Not dividing into seconds because function it passes to does that.) Get meeting time % and stage left, width, and overlap accordingly.
+  function set_meetings(alphaThreshold) {
+    var lastKnown; //last end-time seen by loop below.
+    var drop = 25; // drop percentage for overlap.
+    $('.schedule__meeting').each(function(index) {
+  //  Set times to something we can work with.
+      var startTime = Date.parse($(this).data('start-time'));
+      var endTime = Date.parse($(this).data('end-time'));
+  //  Get %.
+      var percentStart = percentage_of_time_passed_since_last_threshold(startTime, alphaThreshold);
+      var percentEnd = percentage_of_time_passed_since_last_threshold(endTime, alphaThreshold);
+  //  Get width. 
+      var width = ((endTime - startTime) /56250) * .3125;
+  //  Set left and width.
+      $(this).css({'width' : width + '%', 'left' : percentStart + '%'});
+  //  Check for overlap. If last known end time of last meeting is greater than start time, they overlap. Drop it like it has extreme temperature levels.
+      if (typeof lastKnown === "undefined") {
+        lastKnown = endTime;
+      } else if(startTime < lastKnown) {
+        $(this).css({'top' : drop + '%'});
+        drop += 15;
+      } else {
+        drop = 25;
+      }
+      lastKnown = endTime;
+    });
+  }
+
+  //Set colors for meetings. Made this separate from set meeting because this will fire every interval and we only need to set meetings per time block. No point in doing all that ^ every minute.
+  function set_meeting_colors(percentageNow, alphaThreshold) {
+
+    $('.schedule__meeting').each(function(index) {
+  //  Set times to something we can work with.
+    var startTime = Date.parse($(this).data('start-time'));
+    var endTime = Date.parse($(this).data('end-time'));
+  //  Get %.
+    var percentStart = percentage_of_time_passed_since_last_threshold(startTime, alphaThreshold);
+    var percentEnd = percentage_of_time_passed_since_last_threshold(endTime, alphaThreshold);
+
+  //  Remove current color classes and assign new one.
+      $(this).removeClass(function(index, css){
+        return (css.match (/schedule__meeting--[\w-]+/g)).join(' ');
+      });
+      $(this).addClass('schedule__meeting--' + what_color(percentageNow, percentStart, percentEnd))
+
+    });
+  }
+
+  // Assign meeting details color accordingly.
+  function set_details_color(percentageNow, alphaThreshold) {
+
+    $('.details').each(function(index){
+      var startTime = Date.parse($(this).data('start-time'));
+      var endTime = Date.parse($(this).data('end-time'));
+      var percentStart = percentage_of_time_passed_since_last_threshold(startTime, alphaThreshold);
+      var percentEnd = percentage_of_time_passed_since_last_threshold(endTime, alphaThreshold);
+
+      var color = what_color(percentageNow, percentStart, percentEnd);
+
+      $(this).find('.details__status').removeClass(function(index, css){
+        return (css.match (/details__status--[\w-]+/g)).join(' ');
+      });
+      $(this).find('.details__status').addClass('details__status--' + color);
+
+    });
+  }
+
+  //Returns color based on how the start and end relate to the time % now.
+  function what_color(nowPercentage, startPercentage, endPercentage) {
+
+    if (startPercentage < nowPercentage && endPercentage > nowPercentage) {
+      return 'ongoing-event-color';
+    } else if (startPercentage > nowPercentage && (startPercentage- nowPercentage) <= 5) {
+      return 'upcoming-event-color';
+    } else if (startPercentage > nowPercentage) {
+      return 'next-event-color';
+    } else if (endPercentage < nowPercentage) {
+      return 'past-event-color';
+    } else {
+      return 'danger-event-color'
+    }
+  }
+
+  //Looks at count of colors and sets visibility and header color accordingly.
+  function set_hotseat() {
+
+    // Make everything invisible and header colorless. Clear any set intervals.
+    $('.details:not([class*="details--invisible"])').addClass('details--invisible');
+    $('#header').removeClass(function(index, css){
+        return (css.match (/header--[\w-]+/g)).join(' ');
+    });
+    $('.no_more_meetings').css({'opacity' : '0', 'z-index' : '-2'});
+
+    if ($('.details__status--ongoing-event-color').length == 1) {
+      stop_details_rotation();
+      $('#header').addClass('header--ongoing-event-color');
+      $('.details__status--ongoing-event-color').closest('.details').removeClass('details--invisible');
+      $('.details__status--ongoing-event-color').html("Happening Now");
+    } else if ($('.details__status--ongoing-event-color').length > 1) {
+        $('#header').addClass('header--ongoing-event-color');
+        $('.details__status--ongoing-event-color').html("Happening Now");
+        if(beginNewDetailsRotation){
+          rotate("ongoing-event-color");
+        }
+    } else if ($('.details__status--upcoming-event-color').length == 1) {
+        stop_details_rotation();
+        $('#header').addClass('header--upcoming-event-color');
+        $('.details__status--upcoming-event-color').closest('.details').removeClass('details--invisible');
+        $('.details__status--upcoming-event-color').html("Starting Soon");
+    } else if ($('.details__status--upcoming-event-color').length > 1) {
+        $('#header').addClass('header--upcoming-event-color');
+        $('.details__status--upcoming-event-color').html("Happening Now");
+        if(beginNewDetailsRotation){
+        rotate("upcoming-event-color");
+        }
+    } else if ($('.details__status--next-event-color').length > 0) {
+        $('#header').addClass('header--next-event-color');
+        $('.details__status--next-event-color:first').closest('.details').removeClass('details--invisible');
+        $('.details__status--next-event-color').html("Next Meeting");
+    } else {
+        $('#no_more_meetings').css({'opacity' : '1', 'z-index' : '2'});
+    }
+  }
+
+  function stop_details_rotation(){
+    beginNewDetailsRotation = true;
+    clearInterval(detailsRotationIntervalIndex);
+    $('.details').css('display', '');
+  }
+
+  function rotate(color) {
+      beginNewDetailsRotation = false;
+      var selector = '.details__status--' + color + ':last';
+      $(selector).closest('.details').fadeIn(500).delay(7000).fadeOut(500);
+      selector = '.details__status--' + color + ':first';
+      detailsRotationIntervalIndex = setInterval(function(){
+        $(selector).closest('.details').fadeIn(500).delay(7000).fadeOut(500,function (){
+          $(this).appendTo($(this).parent());
+        });
+      }, 8400);
+  }
+  
+  function update_things_that_update_with_every_timeblock() {
+    set_alpha_threshold_for_current_block();
+    set_current_time_block();
+    set_meetings(alphaThreshold);
+  }
+  
+  function update_things_that_update_every_minute() {
+    percentageNow = percentage_of_time_passed_since_last_threshold(now, alphaThreshold);
+    set_timebar();
     set_meeting_colors(percentageNow, alphaThreshold);
     set_details_color(percentageNow, alphaThreshold);
     set_hotseat();
-    
-  },30000);
-
-//Sends current time, minus the space between AM/PM and time, to view. It is a clock.
-function set_clock(now){
- $('.clock').html(standard_time(now).replace(' ', ''));
-}
-
-//Sets the 4 hour array of incremental thresholds used to measure everything off of for the entire day starting with midnight.
-function set_thresholds(thresholds) {
-  for(var i=0; thresholds.length < 7; i+=4){
-      var now = new Date();
-      now.setHours(i,0,0);
-      thresholds.push(now);
+    set_clock();
   }
-}
-
-//Sets the current threshold to use as a base for the time shenanigans in current time block.
-function set_alpha_threshold(thresholds, now) {
-    var gauge = "";
-    for (var i = 0; i < thresholds.length; i++) {
-        if(now > thresholds[i]) {
-            gauge = thresholds[i];
-        }
-    }
-    return gauge;
-}
-
-//Sets timeline list to show current block times.
-//Makes a new object from alphaThreshold so that when time is updated during enumeration it doesnt update the actual alphaThreshold, cause that was no fun. Learned about javascript passing objects byReference instead of byValue the hard way.
-function set_block(alphaThreshold) {
-  var blockThreshold = new Date(alphaThreshold);
-  $('.timeline__list-item').each(function(index){
-    $(this).html(blockThreshold.toLocaleTimeString(navigator.language, {hour: '2-digit'}));
-    blockThreshold.setHours(blockThreshold.getHours()+1);
-  });
-}
-
-//Sets timebar accordingly using the formula stated at top.
-function set_timebar(percentageNow) {
-  var percentage = percentageNow + "%"
-  $('#schedule__time-bar').css({'left' : percentage});
-}
-
-//If 'now' equals any of the thresholds, and is not the current threshold, then prompt for changeover.
-function changeover_check(alphaThreshold, now, thresholds) {
-  var standard_now = standard_time(now);
-  for(var x in thresholds){
-    if (standard_now == standard_time(thresholds[x])){
-      if(standard_now == standard_time(alphaThreshold)){
-          return false;
-      }
-      return true;
-    }
-  }
-  return false;
-}
-
-//Dear future me: I hope you understand my explanation of the meeting length = width% thing.
-
-//Width: End - Start = milliseconds meeting will take. Divide by closest millesecond that will give a clean number. Multiply that by calculated increment %. Eg: 15 min is 900,000 milliseconds and 15 min = 5% of the view width. So I just kept halving those numbers until I got to below 1 second(56250) and its corresponding % (.3125).
-
-//Parse data-tag times into milliseconds. (Not dividing into seconds because function it passes to does that.) Get meeting time % and stage left, width, and overlap accordingly.
-function set_meetings(alphaThreshold) {
-  var lastKnown; //last end-time seen by loop below.
-  var drop = 25; // drop percentage for overlap.
-  $('.schedule__meeting').each(function(index) {
-//  Set times to something we can work with.
-    var startTime = Date.parse($(this).data('start-time'));
-    var endTime = Date.parse($(this).data('end-time'));
-//  Get %.
-    var percentStart = percentage_time(startTime, alphaThreshold);
-    var percentEnd = percentage_time(endTime, alphaThreshold);
-//  Get width. 
-    var width = ((endTime - startTime) /56250) * .3125;
-//  Set left and width.
-    $(this).css({'width' : width + '%', 'left' : percentStart + '%'});
-//  Check for overlap. If last known end time of last meeting is greater than start time, they overlap. Drop it like it has extreme temperature levels.
-    if (typeof lastKnown === "undefined") {
-      lastKnown = endTime;
-    } else if(startTime < lastKnown) {
-      $(this).css({'top' : drop + '%'});
-      drop += 15;
-    } else {
-      drop = 25;
-    }
-    lastKnown = endTime;
-  });
-}
-
-//Set colors for meetings. Made this separate from set meeting because this will fire every interval and we only need to set meetings per time block. No point in doing all that ^ every minute.
-function set_meeting_colors(percentageNow, alphaThreshold) {
   
-  $('.schedule__meeting').each(function(index) {
-//  Set times to something we can work with.
-  var startTime = Date.parse($(this).data('start-time'));
-  var endTime = Date.parse($(this).data('end-time'));
-//  Get %.
-  var percentStart = percentage_time(startTime, alphaThreshold);
-  var percentEnd = percentage_time(endTime, alphaThreshold);
-  
-//  Remove current color classes and assign new one.
-    $(this).removeClass(function(index, css){
-      return (css.match (/schedule__meeting--[\w-]+/g)).join(' ');
-    });
-    $(this).addClass('schedule__meeting--' + what_color(percentageNow, percentStart, percentEnd))
-    
-  });
-}
-
-// Assign meeting details color accordingly.
-function set_details_color(percentageNow, alphaThreshold) {
-  
-  $('.details').each(function(index){
-    var startTime = Date.parse($(this).data('start-time'));
-    var endTime = Date.parse($(this).data('end-time'));
-    var percentStart = percentage_time(startTime, alphaThreshold);
-    var percentEnd = percentage_time(endTime, alphaThreshold);
-    
-    var color = what_color(percentageNow, percentStart, percentEnd);
-    
-    $(this).find('.details__status').removeClass(function(index, css){
-      return (css.match (/details__status--[\w-]+/g)).join(' ');
-    });
-    $(this).find('.details__status').addClass('details__status--' + color);
-    
-  });
-}
-
-//Returns color based on how the start and end relate to the time % now.
-function what_color(nowPercentage, startPercentage, endPercentage) {
-
-  if (startPercentage < nowPercentage && endPercentage > nowPercentage) {
-    return 'ongoing-event-color';
-  } else if (startPercentage > nowPercentage && (startPercentage- nowPercentage) <= 5) {
-    return 'upcoming-event-color';
-  } else if (startPercentage > nowPercentage) {
-    return 'next-event-color';
-  } else if (endPercentage < nowPercentage) {
-    return 'past-event-color';
-  } else {
-    return 'danger-event-color'
-  }
-}
-
-//Looks at count of colors and sets visibility and header color accordingly.
-function set_hotseat() {
-  
-  // Make everything invisible and header colorless. Clear any set intervals.
-  $('.details:not([class*="details--invisible"])').addClass('details--invisible');
-  $('#header').removeClass(function(index, css){
-      return (css.match (/header--[\w-]+/g)).join(' ');
-  });
-  $('.no_more_meetings').css({'opacity' : '0', 'z-index' : '-2'});
-  
-  if ($('.details__status--ongoing-event-color').length == 1) {
-    stop_details_rotation();
-    $('#header').addClass('header--ongoing-event-color');
-    $('.details__status--ongoing-event-color').closest('.details').removeClass('details--invisible');
-    $('.details__status--ongoing-event-color').html("Happening Now");
-  } else if ($('.details__status--ongoing-event-color').length > 1) {
-      $('#header').addClass('header--ongoing-event-color');
-      $('.details__status--ongoing-event-color').html("Happening Now");
-      if(!roadblock){
-        rotate("ongoing-event-color");
-      }
-  } else if ($('.details__status--upcoming-event-color').length == 1) {
-      stop_details_rotation();
-      $('#header').addClass('header--upcoming-event-color');
-      $('.details__status--upcoming-event-color').closest('.details').removeClass('details--invisible');
-      $('.details__status--upcoming-event-color').html("Starting Soon");
-  } else if ($('.details__status--upcoming-event-color').length > 1) {
-      $('#header').addClass('header--upcoming-event-color');
-      $('.details__status--upcoming-event-color').html("Happening Now");
-      if(!roadblock){
-      rotate("upcoming-event-color");
-      }
-  } else if ($('.details__status--next-event-color').length > 0) {
-      $('#header').addClass('header--next-event-color');
-      $('.details__status--next-event-color:first').closest('.details').removeClass('details--invisible');
-      $('.details__status--next-event-color').html("Next Meeting");
-  } else {
-      $('#no_more_meetings').css({'opacity' : '1', 'z-index' : '2'});
-  }
-}
-  
-function stop_details_rotation(){
-  roadblock = false;
-  clearInterval(cycle);
-  $('.details').css('display', '');
-}
-
-function rotate(color) {
-    roadblock = true;
-    var selector = '.details__status--' + color + ':last';
-    $(selector).closest('.details').fadeIn(500).delay(7000).fadeOut(500);
-    cycle = setInterval(function(){
-      $('.details__status--ongoing_event:first').closest('.details').fadeIn(500).delay(7000).fadeOut(500,function (){
-        $(this).appendTo($(this).parent());
-      });
-    }, 8500);
-}
-
 //Converts datetime into seconds and divides by block time size (18000) and returns formatted percentage with 2 decimal places.
-function percentage_time(now, then) {
-  now = now /1000;
-  then = then /1000;
-  return +(((now - then) / 18000) * 100).toFixed(2);
-}
+  function percentage_of_time_passed_since_last_threshold(now, then) {
+    now = now /1000;
+    then = then /1000;
+    return +(((now - then) / 18000) * 100).toFixed(2);
+  }
 
 //normalizes time from datetime object
-function standard_time(time){
-    return time.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});
-}
-  
+  function standard_time(time){
+      return time.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});
+  }
+
 });
