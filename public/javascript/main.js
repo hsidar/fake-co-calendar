@@ -18,11 +18,14 @@ $(document).ready(function(){
   var thresholds = [];
   var alphaThreshold;
   var percentageNow;
+  var hoursInaTimeBlock = $('.timeline__list-item').length; // view only puts as many of these as there are hours, as specified in the controller.
   
 //  Initial setting of all time sensitive elements.
+  set_timeline_divider_width();
   set_thresholds_for_all_time_blocks();
   update_things_that_update_with_every_timeblock();
   update_things_that_update_every_minute();
+  $
 
 //  Set interval to handle time sensitive elements.
 //  Checks time against dynamic time elements to change colors/visibility accordingly.
@@ -42,6 +45,15 @@ $(document).ready(function(){
   //Sends current time, minus the space between AM/PM and time, to view. It is a clock.
   function set_clock(){
    $('.clock').html(standard_time(now).replace(' ', ''));
+  }
+  
+  
+  function set_timeline_divider_width() {
+    
+    var percentageDividerWidth = (100 / (hoursInaTimeBlock * 2)) + '%';
+    $('.schedule__divider-bar, .schedule__buffer-bar').css("width", percentageDividerWidth);
+    var percentageTimelineListItemWidth = (100 / hoursInaTimeBlock) + '%';
+    $('.timeline__list-item').css("width", percentageTimelineListItemWidth);
   }
 
   //Create temporary time object set for midnight and loop through, adding 4 hours to it each loop and pushing to thresholds array.
@@ -94,36 +106,50 @@ $(document).ready(function(){
     return false;
   }
 
-  //Dear future me: I hope you understand my explanation of the meeting length = width% thing.
-
-  //Width: End - Start = milliseconds meeting will take. Divide by closest millesecond that will give a clean number. Multiply that by calculated increment %. Eg: 15 min is 900,000 milliseconds and 15 min = 5% of the view width. So I just kept halving those numbers until I got to below 1 second(56250) and its corresponding % (.3125).
-
-  //Parse data-tag times into milliseconds. (Not dividing into seconds because function it passes to does that.) Get meeting time % and stage left, width, and overlap accordingly.
-  function set_meetings(alphaThreshold) {
-    var lastKnown; //last end-time seen by loop below.
-    var drop = 25; // drop percentage for overlap.
+//drop percent going off of standard height of meeting div being height: 13% + 1% margin top/bottom. First drop takes 10% height timeline div into consideration. Hence 25 with a 15 increment.
+  function set_meeting_width_and_placement_in_the_view() {
+    
+    var lastKnownEndtime;
+    var dropPercentForOverlappingMeetings = 25; 
+    
     $('.schedule__meeting').each(function(index) {
-  //  Set times to something we can work with.
-      var startTime = Date.parse($(this).data('start-time'));
-      var endTime = Date.parse($(this).data('end-time'));
-  //  Get %.
-      var percentStart = percentage_of_time_passed_since_last_threshold(startTime, alphaThreshold);
-      var percentEnd = percentage_of_time_passed_since_last_threshold(endTime, alphaThreshold);
-  //  Get width. 
-      var width = ((endTime - startTime) /56250) * .3125;
-  //  Set left and width.
+      var epochStartTime = Date.parse($(this).data('start-time'));
+      var epochEndTime = Date.parse($(this).data('end-time'));
+      var percentStart = percentage_of_time_passed_since_last_threshold(epochStartTime, alphaThreshold);
+      var width = get_width_of_meeting(epochStartTime, epochEndTime)
+
       $(this).css({'width' : width + '%', 'left' : percentStart + '%'});
-  //  Check for overlap. If last known end time of last meeting is greater than start time, they overlap. Drop it like it has extreme temperature levels.
-      if (typeof lastKnown === "undefined") {
-        lastKnown = endTime;
-      } else if(startTime < lastKnown) {
-        $(this).css({'top' : drop + '%'});
-        drop += 15;
+  //  Check for overlap. If last known end time of last meeting is greater than start time of current, they overlap and current meeting needs to be dropped down.
+      if (typeof lastKnownEndtime === "undefined") {
+        lastKnownEndtime = epochEndTime;
+      } else if(epochStartTime < lastKnownEndtime) {
+        $(this).css({'top' : dropPercentForOverlappingMeetings + '%'});
+        dropPercentForOverlappingMeetings += 15; 
       } else {
-        drop = 25;
+        dropPercentForOverlappingMeetings = 25;
       }
-      lastKnown = endTime;
+      lastKnownEndtime = epochEndTime;
     });
+  }
+  
+  
+//Width: Meeting timeline is 100% wide. If time block is 5 hours, 15 min is 900,000 milliseconds and 15 min = 5% of the meeting timeline.  Multiply that by calculated increment %. Eg: 15 min is 900,000 milliseconds and 15 min = 5% of the view width. Keep halving each until milliseconds is below 60000 to get width % down to the minute.
+
+//Parse data-tag times into milliseconds. (Not dividing into seconds because function it passes to does that.) Get meeting time % and stage left, width, and overlap accordingly.
+  function get_width_of_meeting(epochStartTime, epochEndTime) { 
+    var meetingTimelineInMilliseconds = hoursInaTimeBlock * 3600000;
+    var millisecondsPerQuarterHour = ((meetingTimelineInHours * 60) / (meetingTimelineInHours * 4)) * 60000;
+    var percentageOfQuarterHour = (millisecondsPerQuarterHour / meetingTimelineInMilliseconds) * 100;
+    var millisecondsPerSliver = millisecondsPerQuarterHour;
+    var percentagePerSliver = percentageOfQuarterHour;
+    
+// Halve until below 1 second
+    while (millisecondsPerSliver > 60000) {
+    millisecondsPerSliver /= 2;
+    percentagePerSliver /= 2;
+    }
+    
+    return ((epochEndTime - epochStartTime) /millisecondsPerSliver) * percentagePerSliver;
   }
 
   //Set colors for meetings. Made this separate from set meeting because this will fire every interval and we only need to set meetings per time block. No point in doing all that ^ every minute.
@@ -243,7 +269,7 @@ $(document).ready(function(){
   function update_things_that_update_with_every_timeblock() {
     set_alpha_threshold_for_current_block();
     set_current_time_block();
-    set_meetings(alphaThreshold);
+    set_meeting_width_and_placement_in_the_view();
   }
   
   function update_things_that_update_every_minute() {
@@ -257,9 +283,10 @@ $(document).ready(function(){
   
 //Converts datetime into seconds and divides by block time size (18000) and returns formatted percentage with 2 decimal places.
   function percentage_of_time_passed_since_last_threshold(now, then) {
+    var secondsInTimeBlock = hoursInaTimeBlock * 60 * 60; 
     now = now /1000;
     then = then /1000;
-    return +(((now - then) / 18000) * 100).toFixed(2);
+    return +(((now - then) / secondsInTimeBlock) * 100).toFixed(2);
   }
 
 //normalizes time from datetime object

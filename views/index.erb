@@ -42,18 +42,16 @@
     <!--timeline-->
       <div id="schedule__timeline">
         <ul class="timeline__list">
-          <li class="timeline__list-item"></li>
-          <li class="timeline__list-item"></li>
-          <li class="timeline__list-item"></li>
-          <li class="timeline__list-item"></li>
-          <li class="timeline__list-item"></li>
+          <% @hours_shown.times do %>
+            <li class="timeline__list-item"></li>
+          <% end %>
           </ul>
       </div>
     <!--time-bar-->
       <div id="schedule__time-bar"></div>
     <!--divider bars-->
       <div class="schedule__buffer-bar"></div>
-      <% 9.times do %>
+      <% ((@hours_shown * 2) - 1).times do %>
         <div class="schedule__divider-bar"></div>
       <% end %>
 

@@ -120,7 +120,7 @@ html, body {
   display: inline-block;
   float: left;
   width: 20%;
-  line-height: 200%;
+  margin-top: 1vh;
   font-weight: 300;
   transition: opacity .5s ease-in-out;
   -moz-transition: opacity .5s ease-in-out;
