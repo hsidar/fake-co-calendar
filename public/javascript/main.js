@@ -138,7 +138,7 @@ $(document).ready(function(){
 //Parse data-tag times into milliseconds. (Not dividing into seconds because function it passes to does that.) Get meeting time % and stage left, width, and overlap accordingly.
   function get_width_of_meeting(epochStartTime, epochEndTime) { 
     var meetingTimelineInMilliseconds = hoursInaTimeBlock * 3600000;
-    var millisecondsPerQuarterHour = ((meetingTimelineInHours * 60) / (meetingTimelineInHours * 4)) * 60000;
+    var millisecondsPerQuarterHour = ((hoursInaTimeBlock * 60) / (hoursInaTimeBlock * 4)) * 60000;
     var percentageOfQuarterHour = (millisecondsPerQuarterHour / meetingTimelineInMilliseconds) * 100;
     var millisecondsPerSliver = millisecondsPerQuarterHour;
     var percentagePerSliver = percentageOfQuarterHour;
