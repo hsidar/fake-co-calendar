@@ -40,15 +40,15 @@ For the design they came up with, here are some specifications:
 ---
 ###Tools used:
 
-[Repl.it](https://repl.it) for trying out javascript tidbits.
-http://jsfiddle.net/
-http://railscasts.com/episodes/324-passing-data-to-javascript?view=asciicast
-http://regexr.com/
-[Shotgun](https://github.com/rtomayko/shotgun) for live reload of Sinatra.
-Google
-Stack Overflow
-[Mozilla Developer Network](https://developer.mozilla.org/en-US/)
-Heroku for cloud deployment.
+- [Repl.it](https://repl.it) for trying out javascript tidbits.
+- http://jsfiddle.net/
+- http://railscasts.com/episodes/324-passing-data-to-javascript?view=asciicast
+- http://regexr.com/
+- [Shotgun](https://github.com/rtomayko/shotgun) for live reload of Sinatra.
+- Google
+- Stack Overflow
+- [Mozilla Developer Network](https://developer.mozilla.org/en-US/)
+- Heroku for cloud deployment.
 
 ---
 ##Components:
@@ -74,9 +74,9 @@ Heroku for cloud deployment.
 ---
 ###Challenges:
 
-How to portray time.
+- How to portray time.
 
-How to determine current status of meetings.
+- How to determine current status of meetings.
 
-How to change colors.
+- How to change colors.
 
