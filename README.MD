@@ -16,7 +16,40 @@ If there are no current meetings and there IS a meeting starting within the next
 If there are no more meetings during the day, display a "No events for the rest of the day" message and hide the timeline.
 
 ---
-###Components:
+
+###Features
+
+- Dynamically changes the times and placement of objects according to the @hours_shown variable in calendar.rb (So if client wants a 4 hour window instead, for example, it is an easy change.)
+- Colors isolated to Sass variables, so color change requests can be easily facilitated as well.
+- All times formulated down to the minute and elements display accordingly. 
+- Current time and time sensitive items update every 30 seconds, but can be changed to update every second if needed.
+- Page refreshes itself at midnight every night to capture new days data.
+
+---
+###Notes
+
+- Built app on a Sinatra framework because Rails bulk seemed unneeded and also wanted to explore Sinatra more and this seemed like a good opportunity.
+- Page currently loads in under 1 second on average. If page load is a concern, images could be resized server-side and javascript minified.
+- Time data per element is passed to javascript through Data- tags.
+- Wanted the Ruby app to build the DOM view so decided to have it make the API call as well as opposed to a Jquery or JSONP call client-side.
+- Adhered to design wireframe presented. Since this is first encounter with customer, I want to demonstrate that I can work to specifications.
+- Used the [BEM methodology](https://en.bem.info/) for my CSS naming convention. No frameworks were harmed in the making of this app.
+
+---
+###Tools used:
+
+[Repl.it](https://repl.it) for trying out javascript tidbits.
+http://jsfiddle.net/
+http://railscasts.com/episodes/324-passing-data-to-javascript?view=asciicast
+http://regexr.com/
+[Shotgun](https://github.com/rtomayko/shotgun) for live reload of Sinatra.
+Google
+Stack Overflow
+[Mozilla Developer Network](https://developer.mozilla.org/en-US/)
+Heroku for cloud deployment.
+
+---
+##Components:
 
 ####Header
 
@@ -30,84 +63,14 @@ If there are no more meetings during the day, display a "No events for the rest 
 
 ####Schedule
 
-- 5 hour rolling block showing times in 30 minute cross sections.
+- X hour rolling block showing times in 30 minute cross sections.
 - Time scale at top.
 - Increments of 30 minutes visible.
 - Red line at current time.
 - Meetings with width as long as their time.
 
-
 ---
-process:
-
-Create site template with static data.
-Figure out dynamic time function.
-Figure out dynamic hot seat.
-Place real data accordingly.
-
----
-Tools used:
-
-repl.it for testing javascript
-jsfiddle for testing full interaction
-http://railscasts.com/episodes/324-passing-data-to-javascript?view=asciicast
-regexr
-shotgun
-
----
-Methodology:
-
-
-phases:
-
-grab data from api and handle accordingly using javascript
-set page template up (header, schedule)
-set all the things (clock, time-bar, threshold, block, meetings, hot seat)
-push data to page
-
-
-update threshold:
-if threshold not initialized, return true and avoid doing everything below
-grab current time
-check current time to see if it matches threshold array (time to change)
-if it does, check to see if match is the same as current threshold
-if matches, return false
-if not then returns true and triggers threshold change
-
-set threshold
-for loop compares current time to known time blocks, once it encounters something bigger than it, it passes back last smaller value as threshold.
-sets the block timeline div accordingly
-
-set clock
-push formatted version of now to view.
-
-set time-bar:
-
-red bar possible by pushing bar from the left for the percentage of time that has passed since last threshold:
-each block is 18000 seconds long
-if a block starts at 8pm and it is 940, then that is 100 minutes which is 6000 seconds
-6000 is 33% of 18000 so the bar should be 33% to the left to show the time.
-^ that worked, holy shit.
-
-set details:
-
-how to determine if meeting is in hot seat
-
-
-set meetings:
-use percentages.
-loops through all meetings and calculates percentage
-takes the percentage of start time and percentage of end time as footprint.
-
-places them all according to their percentage.
-checks if under timebar % , over, or both.
-if under, meeting is in past, attaches class for that.
-if over meeting is in future, attaches styling, adds to future pool.
-use vw and time chunks to determine length of div.
-
----
-
-Challenges:
+###Challenges:
 
 How to portray time.
 

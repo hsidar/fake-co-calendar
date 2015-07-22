@@ -126,20 +126,6 @@ html, body {
   padding: 5vh;
 }
 
-@media screen and (max-width: 1000px) {
-  .clock--right {
-    position: absolute;
-    padding-right: 5vw;
-    padding-top: 2vh;
-    top: 0;
-    right: 0;
-  }
-  
-  .clock {
-    font-size: 5vh;
-  }
-}
-
 /*schedule components (time-bar, timeline, meetings, divider bars)*/
 
 #schedule {
