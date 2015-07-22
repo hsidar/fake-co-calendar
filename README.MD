@@ -36,6 +36,7 @@ For the design they came up with, here are some specifications:
 - Wanted the Ruby app to build the DOM view so decided to have it make the API call as well as opposed to a Jquery or JSONP call client-side.
 - Adhered to design wireframe presented. Since this is first encounter with customer, I want to demonstrate that I can work to specifications.
 - Used the [BEM methodology](https://en.bem.info/) for my CSS naming convention. No frameworks were harmed in the making of this app.
+- Research time and a three day vacation to the mountains notwithstanding, the app took me about 24 hours of sit down and coding time to complete.
 
 ---
 ###Tools used:
