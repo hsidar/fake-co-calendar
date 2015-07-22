@@ -57,6 +57,9 @@
 
     <!--Meetings-->
       <% @agenda.each do |meeting| %>
+        
+        
+       
         <div class="schedule__meeting schedule__meeting--red" data-start-time = <%= meeting['start_time'] %> data-end-time = <%= meeting['end_time'] %>>
           <div class="meeting__details">
             <p class="meeting__details--ellipsis-bold"><%= meeting['name'] %></p>

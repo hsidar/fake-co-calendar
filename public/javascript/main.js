@@ -12,6 +12,7 @@
 
 $(document).ready(function(){
   
+  var pageIsFreshlyLoaded = true;
   var beginNewDetailsRotation = true;
   var detailsRotationIntervalIndex = 0;
   var now = new Date();
@@ -19,13 +20,13 @@ $(document).ready(function(){
   var alphaThreshold;
   var percentageNow;
   var hoursInaTimeBlock = $('.timeline__list-item').length; // view only puts as many of these as there are hours, as specified in the controller.
+  var percentageOfQuarterHour;
   
 //  Initial setting of all time sensitive elements.
   set_timeline_divider_width();
   set_thresholds_for_all_time_blocks();
   update_things_that_update_with_every_timeblock();
   update_things_that_update_every_minute();
-  $
 
 //  Set interval to handle time sensitive elements.
 //  Checks time against dynamic time elements to change colors/visibility accordingly.
@@ -139,7 +140,7 @@ $(document).ready(function(){
   function get_width_of_meeting(epochStartTime, epochEndTime) { 
     var meetingTimelineInMilliseconds = hoursInaTimeBlock * 3600000;
     var millisecondsPerQuarterHour = ((hoursInaTimeBlock * 60) / (hoursInaTimeBlock * 4)) * 60000;
-    var percentageOfQuarterHour = (millisecondsPerQuarterHour / meetingTimelineInMilliseconds) * 100;
+    percentageOfQuarterHour = (millisecondsPerQuarterHour / meetingTimelineInMilliseconds) * 100;
     var millisecondsPerSliver = millisecondsPerQuarterHour;
     var percentagePerSliver = percentageOfQuarterHour;
     
@@ -153,21 +154,21 @@ $(document).ready(function(){
   }
 
   //Set colors for meetings. Made this separate from set meeting because this will fire every interval and we only need to set meetings per time block. No point in doing all that ^ every minute.
-  function set_meeting_colors(percentageNow, alphaThreshold) {
+  function set_meeting_colors() {
 
     $('.schedule__meeting').each(function(index) {
-  //  Set times to something we can work with.
-    var startTime = Date.parse($(this).data('start-time'));
-    var endTime = Date.parse($(this).data('end-time'));
-  //  Get %.
-    var percentStart = percentage_of_time_passed_since_last_threshold(startTime, alphaThreshold);
-    var percentEnd = percentage_of_time_passed_since_last_threshold(endTime, alphaThreshold);
-
+      
+      var epochStartTime = Date.parse($(this).data('start-time'));
+      var epochEndTime = Date.parse($(this).data('end-time'));
+      var percentStart = percentage_of_time_passed_since_last_threshold(epochStartTime, alphaThreshold);
+      var percentEnd = percentage_of_time_passed_since_last_threshold(epochEndTime, alphaThreshold);
+      var meetingBackgroundColor = determine_background_color_for_event(percentStart, percentEnd);
+      
   //  Remove current color classes and assign new one.
       $(this).removeClass(function(index, css){
         return (css.match (/schedule__meeting--[\w-]+/g)).join(' ');
       });
-      $(this).addClass('schedule__meeting--' + what_color(percentageNow, percentStart, percentEnd))
+      $(this).addClass('schedule__meeting--' + meetingBackgroundColor);
 
     });
   }
@@ -181,7 +182,7 @@ $(document).ready(function(){
       var percentStart = percentage_of_time_passed_since_last_threshold(startTime, alphaThreshold);
       var percentEnd = percentage_of_time_passed_since_last_threshold(endTime, alphaThreshold);
 
-      var color = what_color(percentageNow, percentStart, percentEnd);
+      var color = determine_background_color_for_event(percentStart, percentEnd);
 
       $(this).find('.details__status').removeClass(function(index, css){
         return (css.match (/details__status--[\w-]+/g)).join(' ');
@@ -191,74 +192,105 @@ $(document).ready(function(){
     });
   }
 
-  //Returns color based on how the start and end relate to the time % now.
-  function what_color(nowPercentage, startPercentage, endPercentage) {
+  //Returns event status based on an over/under for the start and end % in relation to the time % now.
+  function determine_background_color_for_event(startPercentage, endPercentage) {
 
-    if (startPercentage < nowPercentage && endPercentage > nowPercentage) {
+    if (startPercentage < percentageNow && endPercentage > percentageNow) {
       return 'ongoing-event-color';
-    } else if (startPercentage > nowPercentage && (startPercentage- nowPercentage) <= 5) {
-      return 'upcoming-event-color';
-    } else if (startPercentage > nowPercentage) {
+    } else if (startPercentage > percentageNow && (startPercentage- percentageNow) <= percentageOfQuarterHour) {
+      return 'upcoming-event-color'; // event is less than 15 minutes out.
+    } else if (startPercentage > percentageNow) {
       return 'next-event-color';
-    } else if (endPercentage < nowPercentage) {
+    } else if (endPercentage < percentageNow) {
       return 'past-event-color';
     } else {
-      return 'danger-event-color'
+      return 'danger-event-color';
     }
   }
 
-  //Looks at count of colors and sets visibility and header color accordingly.
-  function set_hotseat() {
+  //Counts number of specific details status and changes the details header accordingly.
+  function update_header_details() {
+    
+    sanitize_header_details();
 
-    // Make everything invisible and header colorless. Clear any set intervals.
+    if ($('.details__status--ongoing-event-color').length == 1) {
+      
+      update_header_details_for_single_event("ongoing-event-color", "Happening Now")
+      
+    } else if ($('.details__status--ongoing-event-color').length > 1) {
+      
+      update_header_details_for_multiple_events("ongoing-event-color", "Happening Now");
+      
+    } else if ($('.details__status--upcoming-event-color').length == 1) {
+      
+      update_header_details_for_single_event("upcoming-event-color", "Starting Soon")
+      
+    } else if ($('.details__status--upcoming-event-color').length > 1) {
+      
+      update_header_details_for_multiple_events("upcoming-event-color", "Starting Soon");
+      
+    } else if ($('.details__status--next-event-color').length > 0 && next_meeting_starts_today()) {
+      
+      stop_details_rotation_if_active();
+      $('#header').addClass('header--next-event-color');
+      $('.details__status--next-event-color:first').closest('.details').removeClass('details--invisible');
+      $('.details__status--next-event-color').html("Next Meeting");
+      
+    } else {
+      stop_details_rotation_if_active();
+      $('#no_more_meetings').css({'opacity' : '1', 'z-index' : '2'});
+    }
+  }
+  
+  function next_meeting_starts_today() {
+    var tomorrow = new Date().getDate() + 1;
+    var nextMeetingStartDate = new Date(
+      $('.details__status--next-event-color:first').closest('.details').data('start-time')
+    ).getDate();
+    
+    if (nextMeetingStartDate == tomorrow){
+      return false;
+    }
+    
+    return true;
+  }
+  
+  function update_header_details_for_single_event(status, message) {
+    stop_details_rotation_if_active();
+    $('#header').addClass('header--' + status);
+    $('.details__status--'  + status).closest('.details').removeClass('details--invisible');
+    $('.details__status--' + status).html(message);
+  }
+  
+  function update_header_details_for_multiple_events(status, message) {
+    $('#header').addClass('header--' + status);
+    $('.details__status--' + status).html(message);
+    if(beginNewDetailsRotation){
+      rotate_details_for_concurrent_meetings(status);
+    }
+  }
+  
+// Make details are invisible and header is colorless.
+    function sanitize_header_details(){
     $('.details:not([class*="details--invisible"])').addClass('details--invisible');
     $('#header').removeClass(function(index, css){
         return (css.match (/header--[\w-]+/g)).join(' ');
     });
     $('.no_more_meetings').css({'opacity' : '0', 'z-index' : '-2'});
-
-    if ($('.details__status--ongoing-event-color').length == 1) {
-      stop_details_rotation();
-      $('#header').addClass('header--ongoing-event-color');
-      $('.details__status--ongoing-event-color').closest('.details').removeClass('details--invisible');
-      $('.details__status--ongoing-event-color').html("Happening Now");
-    } else if ($('.details__status--ongoing-event-color').length > 1) {
-        $('#header').addClass('header--ongoing-event-color');
-        $('.details__status--ongoing-event-color').html("Happening Now");
-        if(beginNewDetailsRotation){
-          rotate("ongoing-event-color");
-        }
-    } else if ($('.details__status--upcoming-event-color').length == 1) {
-        stop_details_rotation();
-        $('#header').addClass('header--upcoming-event-color');
-        $('.details__status--upcoming-event-color').closest('.details').removeClass('details--invisible');
-        $('.details__status--upcoming-event-color').html("Starting Soon");
-    } else if ($('.details__status--upcoming-event-color').length > 1) {
-        $('#header').addClass('header--upcoming-event-color');
-        $('.details__status--upcoming-event-color').html("Happening Now");
-        if(beginNewDetailsRotation){
-        rotate("upcoming-event-color");
-        }
-    } else if ($('.details__status--next-event-color').length > 0) {
-        $('#header').addClass('header--next-event-color');
-        $('.details__status--next-event-color:first').closest('.details').removeClass('details--invisible');
-        $('.details__status--next-event-color').html("Next Meeting");
-    } else {
-        $('#no_more_meetings').css({'opacity' : '1', 'z-index' : '2'});
+      
     }
-  }
 
-  function stop_details_rotation(){
+  function stop_details_rotation_if_active(){
     beginNewDetailsRotation = true;
     clearInterval(detailsRotationIntervalIndex);
     $('.details').css('display', '');
   }
 
-  function rotate(color) {
+  function rotate_details_for_concurrent_meetings(meetingStatus) {
       beginNewDetailsRotation = false;
-      var selector = '.details__status--' + color + ':last';
+      var selector = '.details__status--' + meetingStatus + ':last';
       $(selector).closest('.details').fadeIn(500).delay(7000).fadeOut(500);
-      selector = '.details__status--' + color + ':first';
+      selector = '.details__status--' + meetingStatus + ':first';
       detailsRotationIntervalIndex = setInterval(function(){
         $(selector).closest('.details').fadeIn(500).delay(7000).fadeOut(500,function (){
           $(this).appendTo($(this).parent());
@@ -275,13 +307,13 @@ $(document).ready(function(){
   function update_things_that_update_every_minute() {
     percentageNow = percentage_of_time_passed_since_last_threshold(now, alphaThreshold);
     set_timebar();
-    set_meeting_colors(percentageNow, alphaThreshold);
+    set_meeting_colors();
     set_details_color(percentageNow, alphaThreshold);
-    set_hotseat();
+    update_header_details();
     set_clock();
   }
   
-//Converts datetime into seconds and divides by block time size (18000) and returns formatted percentage with 2 decimal places.
+//Converts datetime into seconds, divides by block time size in seconds and returns formatted percentage with 2 decimal places. The + sign in the return value changes result to a number because .toFixed returns a string and not a float.
   function percentage_of_time_passed_since_last_threshold(now, then) {
     var secondsInTimeBlock = hoursInaTimeBlock * 60 * 60; 
     now = now /1000;
@@ -293,5 +325,19 @@ $(document).ready(function(){
   function standard_time(time){
       return time.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});
   }
+  
+// If the time rolls over midnight and the page has not refreshed for the new day, do that.
+  function is_it_time_for_a_daily_refresh(){
+    
+    var hourNow = new Date().getHours();
+    
+    if (!pageIsFreshlyLoaded && hourNow === 0) {
+        location.reload();
+    } else if (hourNow === 0){
+        return
+    } else {
+        pageIsFreshlyLoaded = false;
+    }
+}
 
 });
