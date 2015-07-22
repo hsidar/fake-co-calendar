@@ -2,18 +2,18 @@ In an effort for better organization, the web agency, FakeCo, has decided to buy
 
 For the design they came up with, here are some specifications:
 
-Timeline should only show 5 hour blocks at a time starting at midnight, 4AM, 8AM, noon, 4PM, etc. So when it's between 8AM and 11AM, we should be able to see 8AM-1PM, but as soon as it passes noon, we should now see Noon-5PM, etc.
-Current meetings should be shown in blue
-Past meetings should be displayed in a dim gray
-Future meeting should be a dark gray
-Meetings starting within the next 15 minutes should be purple
-The current time should be displayed in the upper-right of the page
-The top bar should only display information for one event at a time with the following rules:
-If there is a current meeting, display the information for that meeting (in blue).
-If there are multiple current meetings, display information for all, but one at a time... cycle through them every 5-10 seconds or so (in blue).
-If there are no current meetings and no meetings starting within the next 15 minutes, display information about the next meeting only (in dark gray).
-If there are no current meetings and there IS a meeting starting within the next 15 minutes, display information about the next meeting only (in purple).
-If there are no more meetings during the day, display a "No events for the rest of the day" message and hide the timeline.
+- Timeline should only show 5 hour blocks at a time starting at midnight, 4AM, 8AM, noon, 4PM, etc. So when it's between 8AM and 11AM, we should be able to see 8AM-1PM, but as soon as it passes noon, we should now see Noon-5PM, etc.
+- Current meetings should be shown in blue
+- Past meetings should be displayed in a dim gray
+- Future meeting should be a dark gray
+- Meetings starting within the next 15 minutes should be purple
+- The current time should be displayed in the upper-right of the page
+- The top bar should only display information for one event at a time with the following rules:
+  - If there is a current meeting, display the information for that meeting (in blue).
+  - If there are multiple current meetings, display information for all, but one at a time... cycle through them every 5-10 seconds or so (in blue).
+  - If there are no current meetings and no meetings starting within the next 15 minutes, display information about the next meeting only (in dark gray).
+  - If there are no current meetings and there IS a meeting starting within the next 15 minutes, display information about the next meeting only (in purple).
+  - If there are no more meetings during the day, display a "No events for the rest of the day" message and hide the timeline.
 
 ---
 
