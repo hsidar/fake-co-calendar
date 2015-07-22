@@ -41,7 +41,7 @@ For the design they came up with, here are some specifications:
 ###Tools used:
 
 - [Repl.it](https://repl.it) for trying out javascript tidbits.
-- http://jsfiddle.net/
+- [JSfiddle](http://jsfiddle.net/) for testing JS/DOM interactions.
 - http://railscasts.com/episodes/324-passing-data-to-javascript?view=asciicast
 - http://regexr.com/
 - [Shotgun](https://github.com/rtomayko/shotgun) for live reload of Sinatra.
@@ -49,6 +49,7 @@ For the design they came up with, here are some specifications:
 - Stack Overflow
 - [Mozilla Developer Network](https://developer.mozilla.org/en-US/)
 - Heroku for cloud deployment.
+- [Brackets](http://brackets.io/) text editor. (Was using Atom, but switched.)
 
 ---
 ##Components:
