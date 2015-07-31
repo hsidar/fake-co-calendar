@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+ 
+  <head>
+    <meta charset='utf-8'>
+    <title>Today's meetings</title>
+    <link href='/stylesheets/main.css' rel='stylesheet' type='text/css' />
+    <link href='http://fonts.googleapis.com/css?family=Roboto:700,300,100' rel='stylesheet' type='text/css' />
+  </head>
+  
+  <body>
+
+  <!--header-->
+    <div id='header' class='header--danger-event-color'>
+     
+    <!--meeting details-->
+      <% @agenda.each do |meeting| %>
+        <div class = 'details details--invisible', data-start-time = <%= meeting['start_time'] %> data-end-time = <%= meeting['end_time'] %>>
+          <p class='details--bottom-margin details--bold'>
+            <span class='details__status details__status--red'>NOT HAPPENING</span>  <%= meeting['start_time'].strftime('%-I:%M')  %> - <%= meeting['end_time'].strftime('%-I:%M %p') %>
+          </p>
+          <h1><%= meeting['name'] %></h1>
+          <h2 class="details--bottom-margin"><%= meeting['location'] %></h2>
+          <% meeting['attendees'].each do |attendee|%>
+            <img class= 'details__image' src='<%= attendee['photo'] %>' alt='<%= attendee['name'] %>' />
+          <% end %>
+        </div>
+      <% end %>
+    <!--clock-->
+      <div class='clock clock--size clock--right'></div>
+    <!--no more meetings screen-->
+      <div id='no_more_meetings'>
+        <div id='no_more_meetings__centerpiece'>
+          <div class='clock clock--center'></div>
+          <p id="no_more_meetings__message">No events for the rest of the day.</p>
+          </div>
+      </div>
+    </div>
+    
+  <!--schedule-->
+    <div id='schedule'>
+    <!--timeline-->
+      <div id="schedule__timeline">
+        <ul class="timeline__list">
+          <% @hours_shown.times do %>
+            <li class="timeline__list-item"></li>
+          <% end %>
+          </ul>
+      </div>
+    <!--time-bar-->
+      <div id="schedule__time-bar"></div>
+    <!--divider bars-->
+      <div class="schedule__buffer-bar"></div>
+      <% ((@hours_shown * 2) - 1).times do %>
+        <div class="schedule__divider-bar"></div>
+      <% end %>
+
+    <!--Meetings-->
+      <% @agenda.each do |meeting| %>
+        
+        
+       
+        <div class="schedule__meeting schedule__meeting--red" data-start-time = <%= meeting['start_time'] %> data-end-time = <%= meeting['end_time'] %>>
+          <div class="meeting__details">
+            <p class="meeting__details--ellipsis-bold"><%= meeting['name'] %></p>
+            <p><%= meeting['location'] %></p>
+          </div>
+        </div>
+      <% end %>
+      
+    </div>
+
+<!--All the javascripts-->
+
+  <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js'></script>
+    <script type='text/javascript' src='/javascripts/main.js'></script>
+  </body>
+</html>

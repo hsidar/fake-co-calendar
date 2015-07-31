@@ -1,0 +1,24 @@
+<!doctype html>
+<html ng-app="Meeting">
+<head>
+    <meta charset="UTF-8">
+    <title>Untitled Document</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+    <script type="text/javascript" src="https://code.angularjs.org/angular-resource-1.0.0rc4.min.js"></script>
+    <script type="text/javascript" src = "meeting.js"></script>
+    
+    
+</head>
+<body>
+
+<div ng-controller = "MeetingCtrl">
+  <div ng-repeat = 'meeting in meetingsResult["events"]["list"]'>
+    
+    <h1>{{meeting.name}}</h1>
+    
+    
+  </div>
+</div>
+
+</body>
+</html>

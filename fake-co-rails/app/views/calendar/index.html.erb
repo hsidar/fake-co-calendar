@@ -1,0 +1,75 @@
+<div class="header header--blue">
+
+<!--
+  <% @agenda.each do |meeting| %>
+    <div class = "details", data-start-time = <%= meeting['start_time'] %> data-end-time = <%= meeting['end_time'] %>>
+      <p class="details__status">
+        <span class="details__status--bold-blue details__status--bgwhite">HAPPENING NOW</span>  <%= meeting['start_time'].strftime("%-I:%M")  %> - <%= meeting['end_time'].strftime("%-I:%M %p") %>
+      </p>
+      <h1><%= meeting['name'] %></h1>
+      <h2><%= meeting['location'] %></h2>
+      <% meeting['attendees'].each do |attendee|%>
+        <%= image_tag(attendee['photo'], class: "details__image--round details__image--small")  %>
+      <% end %>
+    </div>
+  <% end %>
+-->
+  
+  <div class="details" id = "cold-seat"><p>NO MEETINGS</p></div>
+
+<!--  <div id="clock" class = "clock--size clock--right"></div>-->
+</div>
+
+<!--<div class="schedule">-->
+<!--
+  <div class="schedule__timeline">
+    <ul class="timeline__list">
+      <li class="timeline__list-item"></li>
+      <li class="timeline__list-item"></li>
+      <li class="timeline__list-item">/li>
+      <li class="timeline__list-item"></li>
+      <li class="timeline__list-item last_one"></li>
+    </ul>
+  </div>
+-->
+<!--
+<div id="schedule__time-bar"></div>
+
+
+<div class="schedule__buffer-bar"></div>
+<div class="schedule__dashed-bar"></div>
+<div class="schedule__solid-bar"></div>
+<div class="schedule__dashed-bar"></div>
+<div class="schedule__solid-bar"></div>
+<div class="schedule__dashed-bar"></div>
+<div class="schedule__solid-bar"></div>
+<div class="schedule__dashed-bar"></div>
+<div class="schedule__solid-bar"></div>
+<div class="schedule__dashed-bar"></div>
+-->
+
+
+<!--
+<% @agenda.each do |meeting| %>
+
+  <% width = (((meeting['end_time'].to_i - meeting['start_time'].to_i) / 900) * 5).to_s + "%" %>
+  <div class="schedule__meeting" data-start-time = <%= meeting['start_time'] %> data-end-time = <%= meeting['end_time'] %> style="width: <%= width %>">
+    <div class="meeting__details">
+    <p class="meeting__details--ellipsis-bold"><%= meeting['name'] %></p>
+    <p><%= meeting['start_time'].strftime("%-I:%M") %></p>
+        </div>
+  </div>
+<% end %>
+
+</div>
+-->
+
+
+
+
+
+
+
+
+
+
