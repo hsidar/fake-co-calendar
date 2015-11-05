@@ -1,6 +1,6 @@
 ##Fake Co Calendar
 
-http://fake-co-calendar-assessment.herokuapp.com/
+https://daily-schedule-turnip.herokuapp.com/
 
 In an effort for better organization, the web agency, FakeCo, has decided to buy TVs to place around the office to display information relative to their day-to-day operations. One of the things they are most keen on doing is displaying all company calendar information in real-time in order to alert employees when meetings are about to take place.
 
